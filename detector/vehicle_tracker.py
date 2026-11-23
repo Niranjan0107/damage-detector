@@ -17,15 +17,19 @@ class VehicleTracker:
     def __init__(
         self,
         model_path: str = "yolov8n.pt",
-        confidence_threshold: float = 0.28,
+        confidence_threshold: float = 0.40,
         target_classes: Optional[List[int]] = None,
+        min_box_width: int = 90,
+        min_box_height: int = 70,
     ):
         """
         Initialize YOLO-based Vehicle Tracker strictly for Trucks, Dumpers, and Containers.
         """
         self.confidence_threshold = confidence_threshold
         # Strictly Class 7 (truck) only - Ignore cars, carts, pickups, buses
-        self.target_classes = target_classes or [7]
+        self.target_classes = [7] if target_classes is None else [c for c in target_classes if c == 7]
+        self.min_box_width = min_box_width
+        self.min_box_height = min_box_height
         
         # Load YOLO model
         self.model = YOLO(model_path)
@@ -85,6 +89,13 @@ class VehicleTracker:
             y1 = max(0, min(y1, h - 1))
             x2 = max(x1 + 1, min(x2, w))
             y2 = max(y1 + 1, min(y2, h))
+
+            box_w = x2 - x1
+            box_h = y2 - y1
+
+            # Strictly ignore tiny distant background vehicles / passenger cars
+            if box_w < self.min_box_width or box_h < self.min_box_height:
+                continue
 
             crop = frame[y1:y2, x1:x2].copy()
             

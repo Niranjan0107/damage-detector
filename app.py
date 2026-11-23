@@ -91,7 +91,7 @@ with st.sidebar:
     )
     model_weight = model_option.split(" ")[0]
 
-    veh_conf = st.slider("Vehicle Confidence Threshold", 0.15, 0.90, 0.28, 0.05)
+    veh_conf = st.slider("Vehicle Confidence Threshold", 0.20, 0.90, 0.40, 0.05)
     dmg_sens = st.slider("Damage Sensitivity Threshold", 0.20, 0.90, 0.45, 0.05)
     frame_skip = st.select_slider(
         "Processing Speed / Frame Sampling",
@@ -175,8 +175,14 @@ if video_source_path and os.path.exists(video_source_path):
         status_text = st.empty()
         preview_box = st.empty()
 
-        # Initialize detector components
-        tracker = VehicleTracker(model_path=model_weight, confidence_threshold=veh_conf)
+        # Initialize detector components strictly for Trucks, Dumpers, Containers
+        tracker = VehicleTracker(
+            model_path=model_weight,
+            confidence_threshold=veh_conf,
+            target_classes=[7],
+            min_box_width=90,
+            min_box_height=70,
+        )
         damage_detector = DamageDetector(severity_threshold=dmg_sens)
         processor = VideoProcessor(
             vehicle_tracker=tracker,

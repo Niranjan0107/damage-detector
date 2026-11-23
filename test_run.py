@@ -5,7 +5,13 @@ from utils.report_generator import ReportGenerator
 import os
 
 print("Initializing Mining Fleet AI Inspector...")
-tracker = VehicleTracker(model_path="yolov8n.pt", confidence_threshold=0.28)
+tracker = VehicleTracker(
+    model_path="yolov8n.pt",
+    confidence_threshold=0.40,
+    target_classes=[7],
+    min_box_width=90,
+    min_box_height=70,
+)
 damage_detector = DamageDetector(severity_threshold=0.50)
 processor = VideoProcessor(vehicle_tracker=tracker, damage_detector=damage_detector)
 

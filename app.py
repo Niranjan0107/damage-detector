@@ -91,8 +91,8 @@ with st.sidebar:
     )
     model_weight = model_option.split(" ")[0]
 
-    veh_conf = st.slider("Vehicle Confidence Threshold", 0.20, 0.90, 0.40, 0.05)
-    dmg_sens = st.slider("Damage Sensitivity Threshold", 0.20, 0.90, 0.45, 0.05)
+    veh_conf = st.slider("Vehicle Confidence Threshold", 0.15, 0.90, 0.35, 0.05)
+    dmg_sens = st.slider("Damage Sensitivity Threshold", 0.05, 0.70, 0.14, 0.01)
     frame_skip = st.select_slider(
         "Processing Speed / Frame Sampling",
         options=[1, 2, 3, 5],
@@ -102,8 +102,8 @@ with st.sidebar:
 
     st.divider()
     st.markdown("### AI Models Active")
-    st.success("✅ **Vehicle Filter:** Strictly Trucks & Dumpers (Class 7)")
-    st.success("✅ **Damage Model:** Fine-Tuned Deep Learning YOLO (Dents & Scratches)")
+    st.success("✅ **Vehicle Filter:** Strictly Mining Trucks & Dumpers")
+    st.success("✅ **Damage Model:** YOLO11m AI (Dents, Scratches, Cracks & Cabin Crumple)")
     
     st.markdown("### Mine CCTV Info")
     mine_location = st.text_input("Mine Site / Zone", "Quarry Pit Alpha - Gate 03")

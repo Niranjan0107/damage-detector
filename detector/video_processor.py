@@ -318,8 +318,8 @@ class VideoProcessor:
         for t_id, veh_info in self.tracker.vehicles_registry.items():
             dmg_list = vehicle_damages.get(t_id, [])
             
-            # Require temporal confirmation: At least 2 defect detections or 1 with severity >= 40%
-            confirmed_dmgs = [d for d in dmg_list if d["severity_score"] >= 35.0 or len(dmg_list) >= 2]
+            # Confirm damage: Any defect or structural crumple detected
+            confirmed_dmgs = [d for d in dmg_list if d["severity_score"] >= 15.0 or len(dmg_list) >= 1]
             has_damage = len(confirmed_dmgs) > 0
 
             unique_dmg_types = list({d["type"] for d in confirmed_dmgs}) if has_damage else ["None (Surface Intact)"]
@@ -338,9 +338,9 @@ class VideoProcessor:
 
             if not has_damage:
                 severity_level = "HEALTHY"
-            elif max_score >= 70.0:
+            elif max_score >= 50.0:
                 severity_level = "CRITICAL"
-            elif max_score >= 45.0:
+            elif max_score >= 25.0:
                 severity_level = "MAJOR"
             else:
                 severity_level = "MINOR"

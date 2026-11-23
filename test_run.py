@@ -12,7 +12,7 @@ tracker = VehicleTracker(
     min_box_width=90,
     min_box_height=70,
 )
-damage_detector = DamageDetector(severity_threshold=0.14)
+damage_detector = DamageDetector(severity_threshold=0.14, filter_sun_glare=True)
 processor = VideoProcessor(vehicle_tracker=tracker, damage_detector=damage_detector)
 
 video_in = "samples/mine_cctv_simulation.mp4"

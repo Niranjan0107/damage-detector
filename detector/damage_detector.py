@@ -25,11 +25,13 @@ class DamageDetector:
         self,
         custom_model_path: Optional[str] = None,
         severity_threshold: float = 0.14,
+        filter_sun_glare: bool = True,
     ):
         """
-        Initialize damage detector with industrial CCTV sensitivity.
+        Initialize damage detector with industrial CCTV sensitivity and solar glare filtering.
         """
         self.severity_threshold = severity_threshold
+        self.filter_sun_glare = filter_sun_glare
         self.model = None
 
         candidates = [
@@ -127,6 +129,10 @@ class DamageDetector:
             if bw > (vw * 0.95) and bh > (vh * 0.95):
                 continue
 
+            # Sunlight Glare / Specular Solar Reflection Filter
+            if self.filter_sun_glare and self._is_sunlight_glare(vehicle_crop[dy1:dy2, dx1:dx2]):
+                continue
+
             raw_name = results[0].names.get(cls_id, "Damage")
             if raw_name.lower() in ["none", "background"]:
                 continue
@@ -161,3 +167,31 @@ class DamageDetector:
             return "MAJOR"
         else:
             return "MINOR"
+
+    @staticmethod
+    def _is_sunlight_glare(crop_roi: np.ndarray) -> bool:
+        """
+        Filters out false positives caused by intense sunlight glare / specular solar reflection.
+        Sun glare produces pure overexposed, low-saturation washed out pixels without dark
+        indentation shadows or structural fissures.
+        """
+        if crop_roi is None or crop_roi.size == 0 or crop_roi.shape[0] < 5 or crop_roi.shape[1] < 5:
+            return False
+
+        hsv = cv2.cvtColor(crop_roi, cv2.COLOR_BGR2HSV)
+        _, s, v = cv2.split(hsv)
+
+        # Overexposed solar glare pixels: high value (brightness >= 235), low saturation (<= 50)
+        glare_mask = (v >= 235) & (s <= 50)
+        dark_mask = (v <= 80)
+
+        total_pixels = float(crop_roi.shape[0] * crop_roi.shape[1] + 1e-5)
+        glare_ratio = np.count_nonzero(glare_mask) / total_pixels
+        dark_ratio = np.count_nonzero(dark_mask) / total_pixels
+
+        # If more than 30% of candidate box is pure white sunlight glare
+        # and has no dark structural crack/dent fissure (< 6%), it is sunlight glare!
+        if glare_ratio > 0.30 and dark_ratio < 0.06:
+            return True
+
+        return False

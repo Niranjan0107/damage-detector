@@ -93,6 +93,7 @@ with st.sidebar:
 
     veh_conf = st.slider("Vehicle Confidence Threshold", 0.15, 0.90, 0.35, 0.05)
     dmg_sens = st.slider("Damage Sensitivity Threshold", 0.05, 0.70, 0.14, 0.01)
+    filter_glare = st.checkbox("☀️ Ignore Sunlight / Solar Glare", value=True, help="Filters out specular solar reflections, flares, and overexposed paint glares.")
     frame_skip = st.select_slider(
         "Processing Speed / Frame Sampling",
         options=[1, 2, 3, 5],
@@ -183,7 +184,7 @@ if video_source_path and os.path.exists(video_source_path):
             min_box_width=90,
             min_box_height=70,
         )
-        damage_detector = DamageDetector(severity_threshold=dmg_sens)
+        damage_detector = DamageDetector(severity_threshold=dmg_sens, filter_sun_glare=filter_glare)
         processor = VideoProcessor(
             vehicle_tracker=tracker,
             damage_detector=damage_detector,

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+env/
+.venv/
+
+# Large model weights (auto-downloaded on first run)
+*.pt
+models/*.pt
+
+# Runtime outputs, snapshots & uploads
+data/uploads/*
+!data/uploads/.gitkeep
+data/outputs/*
+!data/outputs/.gitkeep
+data/outputs/snapshots/*
+!data/outputs/snapshots/.gitkeep
+data/reports/*
+!data/reports/.gitkeep
+
+# Operating System
+.DS_Store
+Thumbs.db
